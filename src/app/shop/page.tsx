@@ -4,6 +4,7 @@ import { useGameStore } from "@/store/gameStore";
 import { SHOP_ITEMS, THEME_STYLES, type ShopItemType } from "@/lib/gameData";
 import { useState } from "react";
 import CoinDisplay from "@/components/CoinDisplay";
+import RequireAuth from "@/components/RequireAuth";
 
 const TABS: { key: ShopItemType; label: string; icon: string }[] = [
   { key: "theme", label: "主题", icon: "🎨" },
@@ -12,6 +13,14 @@ const TABS: { key: ShopItemType; label: string; icon: string }[] = [
 ];
 
 export default function ShopPage() {
+  return (
+    <RequireAuth>
+      <ShopContent />
+    </RequireAuth>
+  );
+}
+
+function ShopContent() {
   const [activeTab, setActiveTab] = useState<ShopItemType>("theme");
   const { coins, ownedItems, equippedTheme, equippedEffect, equippedTitle, buyItem, equipTheme, equipEffect, equipTitle, ownsItem } = useGameStore();
 

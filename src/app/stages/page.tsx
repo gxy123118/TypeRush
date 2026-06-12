@@ -4,8 +4,17 @@ import Link from "next/link";
 import { useGameStore } from "@/store/gameStore";
 import { STAGES, CHAPTERS } from "@/lib/gameData";
 import StarRating from "@/components/StarRating";
+import RequireAuth from "@/components/RequireAuth";
 
 export default function StagesPage() {
+  return (
+    <RequireAuth>
+      <StagesContent />
+    </RequireAuth>
+  );
+}
+
+function StagesContent() {
   const { stageStars } = useGameStore();
 
   return (

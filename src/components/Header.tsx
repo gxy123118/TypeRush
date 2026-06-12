@@ -6,13 +6,18 @@ import { usePathname } from "next/navigation";
 import { useGameStore } from "@/store/gameStore";
 import CoinDisplay from "@/components/CoinDisplay";
 
-const navLinks = [
+// 所有人可见
+const publicLinks = [
   { href: "/", label: "练习" },
-  { href: "/stages", label: "闯关" },
   { href: "/challenge", label: "挑战" },
   { href: "/tutorial", label: "教程" },
-  { href: "/shop", label: "商店" },
   { href: "/leaderboard", label: "排行榜" },
+];
+
+// 登录后才显示
+const authLinks = [
+  { href: "/stages", label: "闯关" },
+  { href: "/shop", label: "商店" },
   { href: "/profile", label: "我的" },
 ];
 
@@ -20,6 +25,8 @@ export default function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const coins = useGameStore((s) => s.coins);
+
+  const navLinks = session?.user ? [...publicLinks, ...authLinks] : publicLinks;
 
   return (
     <header className="border-b border-white/[0.06] bg-[#1a1918]/90 backdrop-blur-sm sticky top-0 z-50">
@@ -45,7 +52,7 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <CoinDisplay amount={coins} size="sm" />
+          {session?.user && <CoinDisplay amount={coins} size="sm" />}
           {status === "loading" ? (
             <div className="w-16 h-8 bg-stone-800 rounded animate-pulse" />
           ) : session?.user ? (

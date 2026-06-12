@@ -46,27 +46,26 @@ export default function PracticePage() {
 
     addRecord(record);
 
-    // Award exp & base coins
-    const exp = calculateExp(stats.wpm, stats.accuracy);
-    gameStore.addExp(exp);
-    const baseCoins = Math.round(stats.wpm * (stats.accuracy / 100) * 0.3);
-    if (baseCoins > 0) {
-      gameStore.addCoins(baseCoins);
-      setEarnedCoins(baseCoins);
-    }
-
-    // Check achievements
-    const recentAccuracies = records.slice(0, 4).map((r) => r.accuracy);
-    const newAchievements = checkAchievements(
-      { wpm: stats.wpm, accuracy: stats.accuracy, maxCombo: stats.maxCombo, totalChars: stats.correctChars + stats.errorChars },
-      totalPractices + 1,
-      gameStore.stageStars,
-      gameStore.unlockedAchievements,
-      recentAccuracies,
-    );
-    triggerAchievements(newAchievements, gameStore.unlockAchievement);
-
+    // 只有登录用户才累积金币/经验/成就
     if (session?.user) {
+      const exp = calculateExp(stats.wpm, stats.accuracy);
+      gameStore.addExp(exp);
+      const baseCoins = Math.round(stats.wpm * (stats.accuracy / 100) * 0.3);
+      if (baseCoins > 0) {
+        gameStore.addCoins(baseCoins);
+        setEarnedCoins(baseCoins);
+      }
+
+      const recentAccuracies = records.slice(0, 4).map((r) => r.accuracy);
+      const newAchievements = checkAchievements(
+        { wpm: stats.wpm, accuracy: stats.accuracy, maxCombo: stats.maxCombo, totalChars: stats.correctChars + stats.errorChars },
+        totalPractices + 1,
+        gameStore.stageStars,
+        gameStore.unlockedAchievements,
+        recentAccuracies,
+      );
+      triggerAchievements(newAchievements, gameStore.unlockAchievement);
+
       try {
         await fetch("/api/practice", {
           method: "POST",

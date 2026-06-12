@@ -7,9 +7,18 @@ import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, STAGES, getRank, getExpProgress }
 import LevelBadge from "@/components/LevelBadge";
 import CoinDisplay from "@/components/CoinDisplay";
 import StarRating from "@/components/StarRating";
+import RequireAuth from "@/components/RequireAuth";
 import Link from "next/link";
 
 export default function ProfilePage() {
+  return (
+    <RequireAuth>
+      <ProfileContent />
+    </RequireAuth>
+  );
+}
+
+function ProfileContent() {
   const { data: session } = useSession();
   const { records, bestWpm, totalPractices } = useTypingStore();
   const { coins, exp, level, unlockedAchievements, equippedTitle, equippedTheme, stageStars } = useGameStore();
