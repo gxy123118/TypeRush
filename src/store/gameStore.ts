@@ -112,3 +112,52 @@ export const useGameStore = create<GameState>()(
     { name: "typerush-game" }
   )
 );
+
+// 初始状态，用于 reset
+const initialState = {
+  coins: 0,
+  exp: 0,
+  level: 1,
+  unlockedAchievements: [] as string[],
+  ownedItems: [] as string[],
+  equippedTheme: "default",
+  equippedEffect: "",
+  equippedTitle: "",
+  stageStars: {} as Record<number, number>,
+  pendingToasts: [] as { id: string; name: string; icon: string; coins: number }[],
+  pendingCoinGain: 0,
+};
+
+/**
+ * 切换用户时调用：把当前用户数据存到 localStorage，加载新用户数据
+ */
+export function switchGameUser(userId: string | null) {
+  const store = useGameStore.getState();
+
+  // 保存当前用户数据（如果有 key）
+  const currentKey = localStorage.getItem("typerush-game-user");
+  if (currentKey) {
+    const { pendingToasts: _, pendingCoinGain: __, ...data } = store;
+    localStorage.setItem(`typerush-game-${currentKey}`, JSON.stringify(data));
+  }
+
+  if (userId) {
+    // 加载新用户数据
+    localStorage.setItem("typerush-game-user", userId);
+    const saved = localStorage.getItem(`typerush-game-${userId}`);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        useGameStore.setState({ ...initialState, ...data, pendingToasts: [], pendingCoinGain: 0 });
+      } catch {
+        useGameStore.setState(initialState);
+      }
+    } else {
+      useGameStore.setState(initialState);
+    }
+  } else {
+    // 退出登录
+    localStorage.removeItem("typerush-game-user");
+    useGameStore.setState(initialState);
+  }
+}
