@@ -28,6 +28,7 @@ export function useTypingEngine(text: string) {
   const [elapsedSec, setElapsedSec] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [lastKey, setLastKey] = useState("");
+  const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Initialize char states when text changes
@@ -44,6 +45,7 @@ export function useTypingEngine(text: string) {
     setElapsedSec(0);
     setIsComplete(false);
     setLastKey("");
+    setLastCorrect(null);
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -89,6 +91,7 @@ export function useTypingEngine(text: string) {
             return next;
           });
           setCombo(0);
+          setLastCorrect(null);
         }
         return;
       }
@@ -104,6 +107,7 @@ export function useTypingEngine(text: string) {
       if (currentIndex >= text.length) return;
 
       const isCorrect = inputChar === text[currentIndex];
+      setLastCorrect(isCorrect);
 
       setCharStates((prev) => {
         const next = [...prev];
@@ -162,6 +166,7 @@ export function useTypingEngine(text: string) {
     setElapsedSec(0);
     setIsComplete(false);
     setLastKey("");
+    setLastCorrect(null);
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -185,6 +190,7 @@ export function useTypingEngine(text: string) {
     currentIndex,
     stats,
     lastKey,
+    lastCorrect,
     handleKeyPress,
     reset,
   };

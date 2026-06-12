@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useGameStore } from "@/store/gameStore";
 import CoinDisplay from "@/components/CoinDisplay";
+import SoundToggle from "@/components/SoundToggle";
 
 // 所有人可见
 const publicLinks = [
@@ -51,7 +52,8 @@ export default function Header() {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <SoundToggle />
           {session?.user && <CoinDisplay amount={coins} size="sm" />}
           {status === "loading" ? (
             <div className="w-16 h-8 bg-stone-800 rounded animate-pulse" />

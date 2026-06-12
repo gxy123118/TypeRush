@@ -8,6 +8,7 @@ import { useGameStore } from "@/store/gameStore";
 import { getRandomContent } from "@/lib/content";
 import { calculateExp } from "@/lib/gameData";
 import { checkAchievements, triggerAchievements } from "@/lib/achievementChecker";
+import { useTypingSound } from "@/hooks/useTypingSound";
 import TypingArea from "@/components/TypingArea";
 import StatsPanel from "@/components/StatsPanel";
 import ComboEffect from "@/components/ComboEffect";
@@ -30,8 +31,10 @@ export default function ChallengePage() {
   const [isTimedComplete, setIsTimedComplete] = useState(false);
   const [resultSaved, setResultSaved] = useState(false);
 
-  const { charStates, currentIndex, stats, lastKey, handleKeyPress, reset } =
+  const { charStates, currentIndex, stats, lastKey, lastCorrect, handleKeyPress, reset } =
     useTypingEngine(content.text);
+
+  useTypingSound(lastCorrect, stats.combo, stats.isComplete);
 
   useEffect(() => {
     if (challengeType !== "timed") return;

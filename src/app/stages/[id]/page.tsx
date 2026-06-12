@@ -8,6 +8,7 @@ import { useTypingStore } from "@/store/typingStore";
 import { useGameStore } from "@/store/gameStore";
 import { STAGES, calculateStars, calculateExp } from "@/lib/gameData";
 import { checkAchievements, triggerAchievements } from "@/lib/achievementChecker";
+import { useTypingSound } from "@/hooks/useTypingSound";
 import TypingArea from "@/components/TypingArea";
 import StatsPanel from "@/components/StatsPanel";
 import Keyboard from "@/components/Keyboard";
@@ -29,8 +30,10 @@ export default function StagePlayPage({ params }: { params: Promise<{ id: string
   const [earnedCoins, setEarnedCoins] = useState(0);
 
   const text = stage?.text || "";
-  const { charStates, currentIndex, stats, lastKey, handleKeyPress, reset } =
+  const { charStates, currentIndex, stats, lastKey, lastCorrect, handleKeyPress, reset } =
     useTypingEngine(text);
+
+  useTypingSound(lastCorrect, stats.combo, stats.isComplete);
 
   const handleComplete = useCallback(() => {
     if (completed || !stage) return;

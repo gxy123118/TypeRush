@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTypingEngine } from "@/hooks/useTypingEngine";
+import { useTypingSound } from "@/hooks/useTypingSound";
 import TypingArea from "@/components/TypingArea";
 import StatsPanel from "@/components/StatsPanel";
 import Keyboard from "@/components/Keyboard";
@@ -37,8 +38,10 @@ const STAGES = [
 export default function TutorialPage() {
   const [stageIndex, setStageIndex] = useState(0);
   const stage = STAGES[stageIndex];
-  const { charStates, currentIndex, stats, lastKey, handleKeyPress, reset } =
+  const { charStates, currentIndex, stats, lastKey, lastCorrect, handleKeyPress, reset } =
     useTypingEngine(stage.text);
+
+  useTypingSound(lastCorrect, stats.combo, stats.isComplete);
 
   const handleNext = () => {
     if (stageIndex < STAGES.length - 1) {

@@ -14,6 +14,9 @@ export interface GameState {
   equippedTheme: string;
   equippedEffect: string;
   equippedTitle: string;
+  // 音效
+  soundEnabled: boolean;
+  soundTheme: "mechanical" | "typewriter" | "bubble";
   // 关卡记录：stageId -> best stars
   stageStars: Record<number, number>;
   // 待显示的成就通知队列
@@ -34,6 +37,8 @@ export interface GameState {
   recordStage: (stageId: number, stars: number) => void;
   isAchievementUnlocked: (id: string) => boolean;
   ownsItem: (id: string) => boolean;
+  toggleSound: () => void;
+  setSoundTheme: (theme: "mechanical" | "typewriter" | "bubble") => void;
 }
 
 export const useGameStore = create<GameState>()(
@@ -47,6 +52,8 @@ export const useGameStore = create<GameState>()(
       equippedTheme: "default",
       equippedEffect: "",
       equippedTitle: "",
+      soundEnabled: true,
+      soundTheme: "mechanical" as const,
       stageStars: {},
       pendingToasts: [],
       pendingCoinGain: 0,
@@ -108,6 +115,8 @@ export const useGameStore = create<GameState>()(
 
       isAchievementUnlocked: (id) => get().unlockedAchievements.includes(id),
       ownsItem: (id) => get().ownedItems.includes(id),
+      toggleSound: () => set((s) => ({ soundEnabled: !s.soundEnabled })),
+      setSoundTheme: (theme) => set({ soundTheme: theme }),
     }),
     { name: "typerush-game" }
   )
@@ -123,6 +132,8 @@ const initialState = {
   equippedTheme: "default",
   equippedEffect: "",
   equippedTitle: "",
+  soundEnabled: true,
+  soundTheme: "mechanical" as const,
   stageStars: {} as Record<number, number>,
   pendingToasts: [] as { id: string; name: string; icon: string; coins: number }[],
   pendingCoinGain: 0,

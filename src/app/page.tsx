@@ -8,6 +8,7 @@ import { useGameStore } from "@/store/gameStore";
 import { getRandomContent, type ContentType, type Difficulty } from "@/lib/content";
 import { calculateExp } from "@/lib/gameData";
 import { checkAchievements, triggerAchievements } from "@/lib/achievementChecker";
+import { useTypingSound } from "@/hooks/useTypingSound";
 import TypingArea from "@/components/TypingArea";
 import StatsPanel from "@/components/StatsPanel";
 import Keyboard from "@/components/Keyboard";
@@ -27,8 +28,10 @@ export default function PracticePage() {
   const [resultSaved, setResultSaved] = useState(false);
   const [earnedCoins, setEarnedCoins] = useState(0);
 
-  const { charStates, currentIndex, stats, lastKey, handleKeyPress, reset } =
+  const { charStates, currentIndex, stats, lastKey, lastCorrect, handleKeyPress, reset } =
     useTypingEngine(content.text);
+
+  useTypingSound(lastCorrect, stats.combo, stats.isComplete);
 
   const saveResult = useCallback(async () => {
     if (resultSaved) return;
