@@ -5,6 +5,9 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const inputClass =
+  "w-full px-4 py-2.5 bg-[#1a1918] border border-white/[0.08] rounded-lg text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/30 transition-colors";
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -15,11 +18,16 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    if (!email.trim() || !password) {
+      setError("请输入邮箱和密码");
+      return;
+    }
+
+    setLoading(true);
     try {
       const result = await signIn("credentials", {
-        email,
+        email: email.trim(),
         password,
         redirect: false,
       });
@@ -41,18 +49,18 @@ export default function LoginPage() {
     <div className="max-w-sm mx-auto mt-16 animate-fade-in">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">登录</h1>
-        <p className="text-gray-400">登录以保存你的练习记录</p>
+        <p className="text-stone-400">登录以保存你的练习记录</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg">
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-stone-400 mb-1">
             邮箱
           </label>
           <input
@@ -61,13 +69,13 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2.5 bg-gray-800 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
+            className={inputClass}
             placeholder="your@email.com"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-stone-400 mb-1">
             密码
           </label>
           <input
@@ -76,23 +84,23 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2.5 bg-gray-800 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
-            placeholder="••••••••"
+            className={inputClass}
+            placeholder="输入密码"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+          className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
         >
           {loading ? "登录中..." : "登录"}
         </button>
       </form>
 
-      <p className="text-center text-sm text-gray-500 mt-6">
+      <p className="text-center text-sm text-stone-500 mt-6">
         还没有账号？{" "}
-        <Link href="/auth/register" className="text-emerald-400 hover:text-emerald-300">
+        <Link href="/auth/register" className="text-amber-400 hover:text-amber-300">
           注册
         </Link>
       </p>
