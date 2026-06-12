@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id            String   @id @default(cuid()) @db.VarChar(30)
+  email         String   @unique @db.VarChar(255)
+  name          String?  @db.VarChar(100)
+  passwordHash  String   @db.VarChar(255)
+  createdAt     DateTime @default(now())
+
+  results  PracticeResult[]
+}
+
+model PracticeResult {
+  id          String   @id @default(cuid()) @db.VarChar(30)
+  userId      String   @db.VarChar(30)
+  wpm         Float
+  accuracy    Float
+  maxCombo    Int
+  durationSec Int
+  contentType String   @db.VarChar(20)
+  difficulty  String   @db.VarChar(20)
+  mode        String   @default("practice") @db.VarChar(30)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
