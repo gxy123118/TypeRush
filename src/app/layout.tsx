@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className="dark">
-      <body className="min-h-screen bg-[#0a0a0a] text-gray-100 antialiased">
+      <body className="min-h-screen bg-[#111110] text-[#e8e6e3] antialiased">
         <SessionProvider>
           <Header />
           <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>

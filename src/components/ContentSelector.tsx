@@ -16,9 +16,9 @@ const typeOptions: { value: ContentType; label: string; icon: string }[] = [
 ];
 
 const difficultyOptions: { value: Difficulty; label: string; color: string }[] = [
-  { value: "easy", label: "简单", color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" },
-  { value: "medium", label: "中等", color: "text-yellow-400 border-yellow-500/30 bg-yellow-500/10" },
-  { value: "hard", label: "困难", color: "text-red-400 border-red-500/30 bg-red-500/10" },
+  { value: "easy", label: "简单", color: "text-teal-400 border-teal-500/30 bg-teal-500/10" },
+  { value: "medium", label: "中等", color: "text-amber-400 border-amber-500/30 bg-amber-500/10" },
+  { value: "hard", label: "困难", color: "text-rose-400 border-rose-500/30 bg-rose-500/10" },
 ];
 
 export default function ContentSelector({
@@ -30,7 +30,7 @@ export default function ContentSelector({
   return (
     <div className="flex flex-wrap items-center gap-4">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500 uppercase tracking-wider">类型</span>
+        <span className="text-xs text-stone-500 uppercase tracking-wider">类型</span>
         <div className="flex gap-1">
           {typeOptions.map((opt) => (
             <button
@@ -38,8 +38,8 @@ export default function ContentSelector({
               onClick={() => onTypeChange(opt.value)}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                 contentType === opt.value
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700"
+                  ? "bg-amber-600 text-white"
+                  : "bg-[#1a1918] text-stone-400 hover:text-white hover:bg-stone-800"
               }`}
             >
               {opt.icon} {opt.label}
@@ -49,7 +49,7 @@ export default function ContentSelector({
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500 uppercase tracking-wider">难度</span>
+        <span className="text-xs text-stone-500 uppercase tracking-wider">难度</span>
         <div className="flex gap-1">
           {difficultyOptions.map((opt) => (
             <button
@@ -58,7 +58,7 @@ export default function ContentSelector({
               className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-all ${
                 difficulty === opt.value
                   ? opt.color
-                  : "border-transparent bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700"
+                  : "border-transparent bg-[#1a1918] text-stone-400 hover:text-white hover:bg-stone-800"
               }`}
             >
               {opt.label}

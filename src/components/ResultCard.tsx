@@ -12,13 +12,12 @@ interface ResultCardProps {
 }
 
 function getGrade(wpm: number, accuracy: number): { grade: string; color: string; label: string } {
-  // 评分公式：综合考虑速度和准确率，对中文/慢速也友好
   const score = wpm * (accuracy / 100);
   if (score >= 60) return { grade: "S", color: "text-purple-400", label: "完美!" };
-  if (score >= 40) return { grade: "A", color: "text-emerald-400", label: "优秀!" };
-  if (score >= 25) return { grade: "B", color: "text-blue-400", label: "良好" };
-  if (score >= 12) return { grade: "C", color: "text-yellow-400", label: "不错" };
-  return { grade: "D", color: "text-red-400", label: "继续努力" };
+  if (score >= 40) return { grade: "A", color: "text-amber-300", label: "优秀!" };
+  if (score >= 25) return { grade: "B", color: "text-teal-400", label: "良好" };
+  if (score >= 12) return { grade: "C", color: "text-stone-300", label: "不错" };
+  return { grade: "D", color: "text-rose-400", label: "继续努力" };
 }
 
 export default function ResultCard({ stats, earnedCoins, onRestart, onNext, onClose }: ResultCardProps) {
@@ -38,7 +37,7 @@ export default function ResultCard({ stats, earnedCoins, onRestart, onNext, onCl
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-scale-in relative">
+      <div className="bg-[#1c1b19] border border-white/[0.08] rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-scale-in relative">
         {/* 关闭按钮 */}
         <button
           onClick={onClose || onRestart}
@@ -72,13 +71,13 @@ export default function ResultCard({ stats, earnedCoins, onRestart, onNext, onCl
         <div className="flex gap-3">
           <button
             onClick={onRestart}
-            className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg font-medium transition-colors"
           >
             重新开始
           </button>
           <button
             onClick={onNext}
-            className="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors"
           >
             下一篇
           </button>
@@ -90,8 +89,8 @@ export default function ResultCard({ stats, earnedCoins, onRestart, onNext, onCl
 
 function ResultStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-gray-800/50 rounded-lg px-3 py-2">
-      <div className="text-xs text-gray-500">{label}</div>
+    <div className="bg-[#1a1918]/60 rounded-lg px-3 py-2">
+      <div className="text-xs text-stone-500">{label}</div>
       <div className="text-lg font-semibold text-white">{value}</div>
     </div>
   );

@@ -22,10 +22,10 @@ export default function Header() {
   const coins = useGameStore((s) => s.coins);
 
   return (
-    <header className="border-b border-white/10 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <header className="border-b border-white/[0.06] bg-[#1a1918]/90 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-xl font-bold text-emerald-400 tracking-tight">
+          <Link href="/" className="text-xl font-bold text-amber-400 tracking-tight">
             ⌨️ TypeRush
           </Link>
           <nav className="hidden md:flex items-center gap-0.5">
@@ -35,8 +35,8 @@ export default function Header() {
                 href={link.href}
                 className={`px-2.5 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href))
-                    ? "bg-emerald-500/20 text-emerald-400"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    ? "bg-amber-500/15 text-amber-300"
+                    : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
                 }`}
               >
                 {link.label}
@@ -47,25 +47,25 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <CoinDisplay amount={coins} size="sm" />
           {status === "loading" ? (
-            <div className="w-16 h-8 bg-gray-800 rounded animate-pulse" />
+            <div className="w-16 h-8 bg-stone-800 rounded animate-pulse" />
           ) : session?.user ? (
             <div className="flex items-center gap-2">
-              <Link href="/profile" className="text-sm text-gray-300 hover:text-white transition-colors">
+              <Link href="/profile" className="text-sm text-stone-300 hover:text-white transition-colors">
                 {session.user.name || session.user.email}
               </Link>
               <button
                 onClick={() => signOut()}
-                className="px-2.5 py-1 text-xs text-gray-400 hover:text-white border border-white/10 rounded-md hover:bg-white/5 transition-colors"
+                className="px-2.5 py-1 text-xs text-stone-400 hover:text-white border border-white/10 rounded-md hover:bg-white/[0.04] transition-colors"
               >
                 退出
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link href="/auth/login" className="px-2.5 py-1.5 text-sm text-gray-300 hover:text-white transition-colors">
+              <Link href="/auth/login" className="px-2.5 py-1.5 text-sm text-stone-300 hover:text-white transition-colors">
                 登录
               </Link>
-              <Link href="/auth/register" className="px-2.5 py-1.5 text-sm bg-emerald-600 hover:bg-emerald-500 text-white rounded-md transition-colors">
+              <Link href="/auth/register" className="px-2.5 py-1.5 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded-md transition-colors">
                 注册
               </Link>
             </div>

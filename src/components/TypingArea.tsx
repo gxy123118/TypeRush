@@ -39,7 +39,7 @@ export default function TypingArea({
       ref={containerRef}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className={`relative p-6 rounded-xl border border-white/10 bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-text min-h-[160px] max-h-[320px] overflow-y-auto ${
+      className={`relative p-6 rounded-xl border border-white/[0.06] bg-[#1a1918]/60 focus:outline-none focus:ring-2 focus:ring-amber-500/40 cursor-text min-h-[160px] max-h-[320px] overflow-y-auto ${
         isCode ? "font-mono text-sm leading-relaxed whitespace-pre" : "font-sans text-lg leading-relaxed"
       }`}
     >
@@ -55,11 +55,11 @@ export default function TypingArea({
                 ref={isCursor ? cursorRef : undefined}
                 className={`${
                   cs.status === "correct"
-                    ? "text-emerald-400"
+                    ? "text-amber-300"
                     : cs.status === "incorrect"
-                    ? "text-red-400 bg-red-400/20"
-                    : "text-gray-400"
-                } ${isCursor ? "border-l-2 border-emerald-400 animate-pulse" : ""}`}
+                    ? "text-rose-400 bg-rose-400/15"
+                    : "text-stone-500"
+                } ${isCursor ? "border-l-2 border-amber-400 animate-pulse" : ""}`}
               >
                 {cs.char === "\n" ? "↵\n" : cs.char}
               </span>

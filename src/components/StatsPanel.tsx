@@ -19,25 +19,25 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
         label="速度"
         value={`${stats.wpm}`}
         unit="WPM"
-        color="text-emerald-400"
+        color="text-amber-300"
       />
       <StatCard
         label="准确率"
         value={`${stats.accuracy}`}
         unit="%"
-        color={stats.accuracy >= 95 ? "text-emerald-400" : stats.accuracy >= 80 ? "text-yellow-400" : "text-red-400"}
+        color={stats.accuracy >= 95 ? "text-teal-400" : stats.accuracy >= 80 ? "text-stone-300" : "text-rose-400"}
       />
       <StatCard
         label="连击"
         value={`${stats.combo}`}
         unit={stats.combo >= 10 ? "🔥" : ""}
-        color={stats.combo >= 25 ? "text-orange-400" : stats.combo >= 10 ? "text-yellow-400" : "text-gray-300"}
+        color={stats.combo >= 25 ? "text-orange-400" : stats.combo >= 10 ? "text-amber-400" : "text-stone-400"}
       />
       <StatCard
         label="时间"
         value={formatTime(stats.elapsedSec)}
         unit=""
-        color="text-blue-400"
+        color="text-stone-300"
       />
     </div>
   );
@@ -55,8 +55,8 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-gray-800/50 rounded-lg border border-white/5 px-4 py-3 text-center">
-      <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+    <div className="bg-[#1a1918]/60 rounded-lg border border-white/[0.06] px-4 py-3 text-center">
+      <div className="text-xs text-stone-500 uppercase tracking-wider mb-1">
         {label}
       </div>
       <div className={`text-2xl font-bold ${color}`}>
