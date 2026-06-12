@@ -93,12 +93,17 @@ export function useTypingEngine(text: string) {
         return;
       }
 
+      // Map Enter to newline, Tab to tab
+      let inputChar = key;
+      if (key === "Enter") inputChar = "\n";
+      else if (key === "Tab") inputChar = "\t";
+
       // Skip non-printable keys
-      if (key.length !== 1) return;
+      if (inputChar.length !== 1) return;
 
       if (currentIndex >= text.length) return;
 
-      const isCorrect = key === text[currentIndex];
+      const isCorrect = inputChar === text[currentIndex];
 
       setCharStates((prev) => {
         const next = [...prev];

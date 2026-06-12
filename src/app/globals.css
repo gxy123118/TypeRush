@@ -59,10 +59,46 @@
   animation: comboFlash 0.3s ease-in-out;
 }
 
+@keyframes comboPop {
+  0% { opacity: 0; transform: translate(-50%, 8px) scale(0.8); }
+  15% { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+  25% { transform: translate(-50%, 0) scale(1); }
+  70% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -12px); }
+}
+
+.animate-combo-pop {
+  animation: comboPop 1.5s ease-out forwards;
+}
+
 /* Smooth focus */
 *:focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 2px;
+}
+
+/* Achievement unlock animation */
+@keyframes achievementBounce {
+  0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  40% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  60% { transform: scale(0.9) rotate(-3deg); }
+  80% { transform: scale(1.05) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.achievement-icon-bounce {
+  animation: achievementBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 /* Body default */

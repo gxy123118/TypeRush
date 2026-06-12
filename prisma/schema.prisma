@@ -12,9 +12,18 @@ model User {
   email         String   @unique @db.VarChar(255)
   name          String?  @db.VarChar(100)
   passwordHash  String   @db.VarChar(255)
+  coins         Int      @default(0)
+  level         Int      @default(1)
+  exp           Int      @default(0)
+  title         String?  @db.VarChar(50)
+  equippedTheme String?  @db.VarChar(50)
+  equippedEffect String? @db.VarChar(50)
   createdAt     DateTime @default(now())
 
-  results  PracticeResult[]
+  results      PracticeResult[]
+  achievements UserAchievement[]
+  items        UserItem[]
+  stageRecords StageRecord[]
 }
 
 model PracticeResult {
@@ -32,4 +41,43 @@ model PracticeResult {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId, createdAt])
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid()) @db.VarChar(30)
+  userId        String   @db.VarChar(30)
+  achievementId String   @db.VarChar(50)
+  unlockedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model UserItem {
+  id     String    @id @default(cuid()) @db.VarChar(30)
+  userId String    @db.VarChar(30)
+  itemId String    @db.VarChar(50)
+  boughtAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemId])
+  @@index([userId])
+}
+
+model StageRecord {
+  id      String   @id @default(cuid()) @db.VarChar(30)
+  userId  String   @db.VarChar(30)
+  stageId Int
+  stars   Int
+  wpm     Float
+  accuracy Float
+  coins   Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, stageId])
 }

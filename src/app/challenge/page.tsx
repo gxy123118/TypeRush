@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useTypingEngine } from "@/hooks/useTypingEngine";
 import { useTypingStore } from "@/store/typingStore";
+import { useGameStore } from "@/store/gameStore";
 import { getRandomContent } from "@/lib/content";
+import { calculateExp } from "@/lib/gameData";
+import { checkAchievements, triggerAchievements } from "@/lib/achievementChecker";
 import TypingArea from "@/components/TypingArea";
 import StatsPanel from "@/components/StatsPanel";
 import ComboEffect from "@/components/ComboEffect";
@@ -19,43 +22,29 @@ const CHALLENGE_CONFIG = {
 
 export default function ChallengePage() {
   const { data: session } = useSession();
-  const { bestWpm, addRecord } = useTypingStore();
+  const { bestWpm, addRecord, totalPractices, records } = useTypingStore();
+  const gameStore = useGameStore();
   const [challengeType, setChallengeType] = useState<ChallengeType | null>(null);
   const [content, setContent] = useState(() => getRandomContent("english", "medium"));
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimedComplete, setIsTimedComplete] = useState(false);
   const [resultSaved, setResultSaved] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { charStates, currentIndex, stats, lastKey, handleKeyPress, reset } =
     useTypingEngine(content.text);
 
-  // Timed challenge countdown
   useEffect(() => {
     if (challengeType !== "timed") return;
-    if (stats.elapsedSec === 0) return; // Not started yet
-
+    if (stats.elapsedSec === 0) return;
     const remaining = 60 - stats.elapsedSec;
     setTimeLeft(Math.max(0, remaining));
-
-    if (remaining <= 0 && !isTimedComplete) {
-      setIsTimedComplete(true);
-    }
+    if (remaining <= 0 && !isTimedComplete) setIsTimedComplete(true);
   }, [stats.elapsedSec, challengeType, isTimedComplete]);
 
-  // Perfect challenge: fail on first error
   const perfectFailed = challengeType === "perfect" && stats.errorChars > 0;
+  const beatPersonalBest = challengeType === "personal-best" && stats.isComplete && stats.wpm > bestWpm;
+  const isComplete = stats.isComplete || isTimedComplete || perfectFailed;
 
-  // Personal best challenge
-  const beatPersonalBest =
-    challengeType === "personal-best" && stats.isComplete && stats.wpm > bestWpm;
-
-  const isComplete =
-    stats.isComplete ||
-    isTimedComplete ||
-    perfectFailed;
-
-  // Save result
   const saveResult = useCallback(async () => {
     if (resultSaved || !challengeType) return;
     setResultSaved(true);
@@ -72,6 +61,23 @@ export default function ChallengePage() {
 
     addRecord(record);
 
+    // Award exp & coins
+    const exp = calculateExp(stats.wpm, stats.accuracy);
+    gameStore.addExp(exp);
+    const coins = Math.round(stats.wpm * (stats.accuracy / 100) * 0.4);
+    if (coins > 0) gameStore.addCoins(coins);
+
+    // Check achievements
+    const recentAccuracies = records.slice(0, 4).map((r) => r.accuracy);
+    const newAchievements = checkAchievements(
+      { wpm: stats.wpm, accuracy: stats.accuracy, maxCombo: stats.maxCombo, totalChars: stats.correctChars + stats.errorChars },
+      totalPractices + 1,
+      gameStore.stageStars,
+      gameStore.unlockedAchievements,
+      recentAccuracies,
+    );
+    triggerAchievements(newAchievements, gameStore.unlockAchievement);
+
     if (session?.user) {
       try {
         await fetch("/api/practice", {
@@ -79,16 +85,12 @@ export default function ChallengePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(record),
         });
-      } catch {
-        // localStorage already has it
-      }
+      } catch {}
     }
-  }, [stats, challengeType, addRecord, session, resultSaved]);
+  }, [stats, challengeType, addRecord, session, resultSaved, gameStore, totalPractices, records]);
 
   useEffect(() => {
-    if (isComplete && !resultSaved) {
-      saveResult();
-    }
+    if (isComplete && !resultSaved) saveResult();
   }, [isComplete, resultSaved, saveResult]);
 
   const handleStart = (type: ChallengeType) => {
@@ -108,7 +110,6 @@ export default function ChallengePage() {
     reset();
   };
 
-  // Challenge selection screen
   if (!challengeType) {
     return (
       <div className="space-y-6 animate-fade-in">
@@ -127,9 +128,7 @@ export default function ChallengePage() {
                 </div>
                 <div className="text-sm text-gray-400 mt-1">{config.desc}</div>
                 {type === "personal-best" && (
-                  <div className="text-sm text-emerald-400 mt-2">
-                    当前最佳：{bestWpm} WPM
-                  </div>
+                  <div className="text-sm text-emerald-400 mt-2">当前最佳：{bestWpm} WPM</div>
                 )}
               </button>
             )
@@ -142,24 +141,14 @@ export default function ChallengePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">
-          {CHALLENGE_CONFIG[challengeType].label}
-        </h1>
-        <button
-          onClick={() => setChallengeType(null)}
-          className="text-sm text-gray-400 hover:text-white transition-colors"
-        >
+        <h1 className="text-2xl font-bold text-white">{CHALLENGE_CONFIG[challengeType].label}</h1>
+        <button onClick={() => setChallengeType(null)} className="text-sm text-gray-400 hover:text-white transition-colors">
           ← 返回选择
         </button>
       </div>
 
-      {/* Timed challenge timer */}
       {challengeType === "timed" && (
-        <div
-          className={`text-center text-4xl font-black ${
-            timeLeft <= 10 ? "text-red-400 animate-pulse" : "text-emerald-400"
-          }`}
-        >
+        <div className={`text-center text-4xl font-black ${timeLeft <= 10 ? "text-red-400 animate-pulse" : "text-emerald-400"}`}>
           {timeLeft}s
         </div>
       )}
@@ -170,30 +159,15 @@ export default function ChallengePage() {
         <TypingArea
           charStates={charStates}
           currentIndex={currentIndex}
-          onKeyPress={(key) => {
-            if (isTimedComplete) return;
-            handleKeyPress(key);
-          }}
+          onKeyPress={(key) => { if (!isTimedComplete) handleKeyPress(key); }}
         />
       ) : (
         <div className="bg-gray-800/50 rounded-xl border border-white/10 p-8 text-center space-y-4 animate-scale-in">
           <div className="text-4xl">
-            {perfectFailed
-              ? "😢"
-              : beatPersonalBest
-              ? "🏆"
-              : stats.wpm >= 60
-              ? "🎉"
-              : "👍"}
+            {perfectFailed ? "😢" : beatPersonalBest ? "🏆" : stats.wpm >= 60 ? "🎉" : "👍"}
           </div>
           <h2 className="text-xl font-bold text-white">
-            {perfectFailed
-              ? "挑战失败"
-              : beatPersonalBest
-              ? "新纪录！"
-              : challengeType === "timed"
-              ? "时间到！"
-              : "挑战完成！"}
+            {perfectFailed ? "挑战失败" : beatPersonalBest ? "新纪录！" : challengeType === "timed" ? "时间到！" : "挑战完成！"}
           </h2>
           <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
             <div>
@@ -210,16 +184,10 @@ export default function ChallengePage() {
             </div>
           </div>
           <div className="flex gap-3 justify-center pt-2">
-            <button
-              onClick={handleRestart}
-              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
-            >
+            <button onClick={handleRestart} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors">
               再来一次
             </button>
-            <button
-              onClick={() => setChallengeType(null)}
-              className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors"
-            >
+            <button onClick={() => setChallengeType(null)} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors">
               选择其他
             </button>
           </div>

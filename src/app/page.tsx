@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useTypingEngine } from "@/hooks/useTypingEngine";
 import { useTypingStore } from "@/store/typingStore";
+import { useGameStore } from "@/store/gameStore";
 import { getRandomContent, type ContentType, type Difficulty } from "@/lib/content";
+import { calculateExp } from "@/lib/gameData";
+import { checkAchievements, triggerAchievements } from "@/lib/achievementChecker";
 import TypingArea from "@/components/TypingArea";
 import StatsPanel from "@/components/StatsPanel";
 import Keyboard from "@/components/Keyboard";
@@ -14,18 +17,19 @@ import ResultCard from "@/components/ResultCard";
 
 export default function PracticePage() {
   const { data: session } = useSession();
-  const addRecord = useTypingStore((s) => s.addRecord);
+  const { addRecord, totalPractices, records } = useTypingStore();
+  const gameStore = useGameStore();
 
   const [contentType, setContentType] = useState<ContentType>("english");
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [content, setContent] = useState(() => getRandomContent("english", "easy"));
   const [showResult, setShowResult] = useState(false);
   const [resultSaved, setResultSaved] = useState(false);
+  const [earnedCoins, setEarnedCoins] = useState(0);
 
   const { charStates, currentIndex, stats, lastKey, handleKeyPress, reset } =
     useTypingEngine(content.text);
 
-  // Save result when complete
   const saveResult = useCallback(async () => {
     if (resultSaved) return;
     setResultSaved(true);
@@ -40,10 +44,28 @@ export default function PracticePage() {
       mode: "practice",
     };
 
-    // Save to localStorage
     addRecord(record);
 
-    // Save to server if logged in
+    // Award exp & base coins
+    const exp = calculateExp(stats.wpm, stats.accuracy);
+    gameStore.addExp(exp);
+    const baseCoins = Math.round(stats.wpm * (stats.accuracy / 100) * 0.3);
+    if (baseCoins > 0) {
+      gameStore.addCoins(baseCoins);
+      setEarnedCoins(baseCoins);
+    }
+
+    // Check achievements
+    const recentAccuracies = records.slice(0, 4).map((r) => r.accuracy);
+    const newAchievements = checkAchievements(
+      { wpm: stats.wpm, accuracy: stats.accuracy, maxCombo: stats.maxCombo, totalChars: stats.correctChars + stats.errorChars },
+      totalPractices + 1,
+      gameStore.stageStars,
+      gameStore.unlockedAchievements,
+      recentAccuracies,
+    );
+    triggerAchievements(newAchievements, gameStore.unlockAchievement);
+
     if (session?.user) {
       try {
         await fetch("/api/practice", {
@@ -51,49 +73,62 @@ export default function PracticePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(record),
         });
-      } catch {
-        // Silently fail — localStorage already has the record
-      }
+      } catch {}
     }
-  }, [stats, contentType, difficulty, addRecord, session, resultSaved]);
+  }, [stats, contentType, difficulty, addRecord, session, resultSaved, gameStore, totalPractices, records]);
 
-  // Show result card when complete
-  if (stats.isComplete && !showResult) {
-    setShowResult(true);
-    saveResult();
-  }
+  const completedRef = useRef(false);
+
+  useEffect(() => {
+    if (stats.isComplete && !completedRef.current) {
+      completedRef.current = true;
+      // Defer state updates to avoid setState-in-render
+      queueMicrotask(() => {
+        setShowResult(true);
+        saveResult();
+      });
+    }
+  }, [stats.isComplete, saveResult]);
 
   const handleRestart = () => {
+    completedRef.current = false;
     setShowResult(false);
     setResultSaved(false);
+    setEarnedCoins(0);
     reset();
   };
 
   const handleNext = () => {
+    completedRef.current = false;
     setShowResult(false);
     setResultSaved(false);
+    setEarnedCoins(0);
     setContent(getRandomContent(contentType, difficulty));
   };
 
   const handleTypeChange = (type: ContentType) => {
+    completedRef.current = false;
     setContentType(type);
     setContent(getRandomContent(type, difficulty));
     setShowResult(false);
     setResultSaved(false);
+    setEarnedCoins(0);
     reset();
   };
 
   const handleDifficultyChange = (diff: Difficulty) => {
+    completedRef.current = false;
     setDifficulty(diff);
     setContent(getRandomContent(contentType, diff));
     setShowResult(false);
     setResultSaved(false);
+    setEarnedCoins(0);
     reset();
   };
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-bold text-white">打字练习</h1>
         <ContentSelector
           contentType={contentType}
@@ -113,12 +148,12 @@ export default function PracticePage() {
       />
 
       <Keyboard activeKey={lastKey} highlightFinger />
-
       <ComboEffect combo={stats.combo} />
 
       {showResult && (
         <ResultCard
           stats={stats}
+          earnedCoins={earnedCoins}
           onRestart={handleRestart}
           onNext={handleNext}
         />

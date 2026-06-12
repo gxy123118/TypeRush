@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import Header from "@/components/Header";
+import AchievementToast from "@/components/AchievementToast";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({
         <SessionProvider>
           <Header />
           <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
+          <AchievementToast />
         </SessionProvider>
       </body>
     </html>

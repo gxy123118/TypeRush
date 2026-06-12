@@ -7,37 +7,32 @@ interface ComboEffectProps {
 }
 
 export default function ComboEffect({ combo }: ComboEffectProps) {
-  const [showEffect, setShowEffect] = useState(false);
+  const [show, setShow] = useState(false);
   const [milestone, setMilestone] = useState(0);
 
   useEffect(() => {
     if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
       setMilestone(combo);
-      setShowEffect(true);
-      const timer = setTimeout(() => setShowEffect(false), 1500);
+      setShow(true);
+      const timer = setTimeout(() => setShow(false), 1500);
       return () => clearTimeout(timer);
     }
   }, [combo]);
 
-  if (!showEffect) return null;
+  if (!show) return null;
 
-  const getStyle = () => {
-    if (milestone >= 100) return { emoji: "🏆", text: "LEGENDARY!", color: "text-purple-400", bg: "bg-purple-500/20" };
-    if (milestone >= 50) return { emoji: "⚡", text: "UNSTOPPABLE!", color: "text-orange-400", bg: "bg-orange-500/20" };
-    if (milestone >= 25) return { emoji: "🔥", text: "ON FIRE!", color: "text-yellow-400", bg: "bg-yellow-500/20" };
-    return { emoji: "✨", text: "NICE COMBO!", color: "text-emerald-400", bg: "bg-emerald-500/20" };
-  };
-
-  const style = getStyle();
+  const style =
+    milestone >= 100 ? { emoji: "🏆", text: "LEGENDARY!", color: "text-purple-400" }
+    : milestone >= 50 ? { emoji: "⚡", text: "UNSTOPPABLE!", color: "text-orange-400" }
+    : milestone >= 25 ? { emoji: "🔥", text: "ON FIRE!", color: "text-yellow-400" }
+    : { emoji: "✨", text: "NICE COMBO!", color: "text-emerald-400" };
 
   return (
-    <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-50">
-      <div
-        className={`${style.bg} ${style.color} px-8 py-4 rounded-2xl text-center animate-bounce`}
-      >
-        <div className="text-4xl mb-1">{style.emoji}</div>
-        <div className="text-2xl font-black">{style.text}</div>
-        <div className="text-lg font-bold">{milestone} COMBO</div>
+    <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-combo-pop">
+      <div className={`flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900/90 border border-white/10 ${style.color}`}>
+        <span className="text-lg">{style.emoji}</span>
+        <span className="text-sm font-black">{style.text}</span>
+        <span className="text-xs font-bold opacity-70">{milestone}</span>
       </div>
     </div>
   );
